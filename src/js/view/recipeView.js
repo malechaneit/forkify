@@ -5,12 +5,48 @@ class RecipeView {
   #parentEl = document.querySelector('.recipe');
   #data;
   #markup;
+  #errorMessage = `No recipes found for your query. Please try again!`;
+  #successMessage = `Start by searching for a recipe or an ingredient. Have fun!`;
 
   render = function (data) {
     this.#data = data;
     const markup = this.#generateMarkup();
     this.#clear();
     this.#parentEl.insertAdjacentHTML('afterBegin', markup);
+  };
+
+  #clear = function () {
+    this.#parentEl.innerHTML = '';
+  };
+
+  renderError = function (message = this.#errorMessage) {
+    const markup = `
+        <div class="error">
+            <div>
+              <svg>
+                <use href="${icons}#icon-alert-triangle"></use>
+              </svg>
+            </div>
+            <p>${message}</p>
+          </div>
+      `;
+    this.#clear();
+    this.#parentEl.insertAdjacentHTML('afterbegin', markup);
+  };
+
+  renderMessage = function (message = this.#successMessage) {
+    const markup = `
+        <div class="message">
+          <div>
+            <svg>
+              <use href="${icons}#icon-smile"></use>
+            </svg>
+          </div>
+          <p>${message}</p>
+        </div>
+      `;
+    this.#clear();
+    this.#parentEl.insertAdjacentHTML('afterbegin', markup);
   };
 
   renderSpinner = function () {
@@ -26,19 +62,15 @@ class RecipeView {
     this.#parentEl.insertAdjacentHTML('afterbegin', markup);
   };
 
-  #clear = function () {
-    this.#parentEl.innerHTML = '';
-  };
-
   #generateIngredientsMarkup = function (ing) {
     return `
         <li class="recipe__ingredient">
         <svg class="recipe__icon">
             <use href="${icons}#icon-check"></use>
         </svg>
-        <div class="recipe__quantity">${ing.quantity ? new Fraction(
-          ing.quantity
-        ).toString(): ''}</div>
+        <div class="recipe__quantity">${
+          ing.quantity ? new Fraction(ing.quantity).toString() : ''
+        }</div>
         <div class="recipe__description">
             <span class="recipe__unit">${ing.unit}</span>
             ${ing.description}
@@ -129,6 +161,10 @@ class RecipeView {
             </a>
           </div>
     `;
+  };
+
+  addHandlerRender = function (handler) {
+    ['load', 'hashchange'].forEach(ev => window.addEventListener(ev, handler));
   };
 }
 
