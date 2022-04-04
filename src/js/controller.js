@@ -12,22 +12,23 @@ if(module.hot) {
 
 const showRecipe = async function () {
   try {
-    // 1. Loading recipe
-
     const id = window.location.hash.slice(1);
 
     if (!id) return;
+    
+    resultsView.update(model.getSearchResultsPage());
+
+    // 1. Loading recipe
 
     recipeView.renderSpinner();
 
     await model.loadRecipe(id);
 
-    const {recipe} = model.state;
+    const { recipe } = model.state;
 
     // 2. Rendering recipe
 
     recipeView.render(model.state.recipe);
-    
   } catch (err) {
     recipeView.renderError();
   }
@@ -58,7 +59,7 @@ const controlPagination = function(goto) {
 const controlServings = function(newServ) {
   model.updateServings(newServ);
 
-  recipeView.render(model.state.recipe);
+  recipeView.update(model.state.recipe);
 }
 
 

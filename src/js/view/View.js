@@ -5,7 +5,8 @@ export default class View {
   _data;
 
   render = function (data) {
-    if(!data || (Array.isArray(data) && data.length === 0)) return this.renderError();
+    if (!data || (Array.isArray(data) && data.length === 0))
+      return this.renderError();
     this._data = data;
     const markup = this._generateMarkup();
     this._clear();
@@ -15,6 +16,34 @@ export default class View {
   _clear = function () {
     this._parentEl.innerHTML = '';
   };
+
+  update(data) {
+    this._data = data;
+    const newMarkup = this._generateMarkup();
+    const newDOM = document.createRange().createContextualFragment(newMarkup);
+    const newEls = Array.from(newDOM.querySelectorAll('*'));
+    const curEls = Array.from(this._parentEl.querySelectorAll('*'));
+
+    newEls.forEach((newEl, i) => {
+      const curEl = curEls[i];
+
+      // Update text
+      if (
+        !newEl.isEqualNode(curEl) &&
+        newEl.firstChild?.nodeValue.trim() !== ''
+      ) {
+        curEl.textContent = newEl.textContent;
+      }
+
+      // Update attributes
+      if (!newEl.isEqualNode(curEl)) {
+        Array.from(newEl.attributes).forEach(attr => {
+          curEl.setAttribute(attr.name, attr.value);
+        });
+      }
+    });
+  }
+  
 
   renderError = function (message = this._errorMessage) {
     const markup = `
