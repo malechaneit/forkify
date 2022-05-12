@@ -4,11 +4,12 @@ export default class View {
   _parentEl = document.querySelector('.recipe');
   _data;
 
-  render = function (data) {
+  render = function (data, render = true) {
     if (!data || (Array.isArray(data) && data.length === 0))
       return this.renderError();
     this._data = data;
     const markup = this._generateMarkup();
+    if (!render) return markup;
     this._clear();
     this._parentEl.insertAdjacentHTML('afterBegin', markup);
   };
