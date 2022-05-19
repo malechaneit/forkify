@@ -72,4 +72,4 @@ class PaginationView extends View {
   }
 }
 
-export const paginationView =  new PaginationView();
+export default new PaginationView();

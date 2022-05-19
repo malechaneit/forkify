@@ -1,7 +1,7 @@
 import 'core-js/stable';
 import 'regenerator-runtime/runtime';
-import {API_URL, RES_PER_PAGE} from './config.js';
-import { getJSON } from './helpers.js';
+import {API_URL, API_KEY, RES_PER_PAGE} from './config.js';
+import { AJAX } from './helpers.js';
 
 export const state = {
   recipe: {},
@@ -14,22 +14,27 @@ export const state = {
   bookmarks: []
 };
 
+export const createRecipeObject = function(data) {
+    const { recipe } = data.data;
+
+    return {
+        id: recipe.id,
+        title: recipe.title,
+        publisher: recipe.publisher,
+        sourceUrl: recipe.source_url,
+        image: recipe.image_url,
+        servings: recipe.servings,
+        ingredients: recipe.ingredients,
+        cookingTime: recipe.cooking_time,
+        ...(recipe.key && {key: recipe.key})
+    };
+}
+
 export const loadRecipe = async function(id) {
     try {
-        const data = await getJSON(`${API_URL}/${id}`);
+        const data = await AJAX(`${API_URL}/${id}?key=${API_KEY}`);
 
-        const {recipe} = data.data;
-
-        state.recipe = {
-            id: recipe.id,
-            title: recipe.title,
-            publisher: recipe.publisher,
-            sourceUrl: recipe.source_url,
-            image: recipe.image_url,
-            servings: recipe.servings,
-            ingredients: recipe.ingredients,
-            cookingTime: recipe.cooking_time
-            }
+            state.recipe = createRecipeObject(data);
 
             console.log(state.recipe);
 
@@ -45,14 +50,15 @@ export const loadRecipe = async function(id) {
 export const loadSearchResults = async function(query) {
     try {
         state.search.query = `${query}`;
-        const data = await getJSON(`${API_URL}?search=${query}`);
+        const data = await AJAX(`${API_URL}?search=${query}&key=${API_KEY}`);
 
         state.search.results = data.data.recipes.map(rec => {
             return {
               id: rec.id,
               title: rec.title,
               publisher: rec.publisher,
-              image: rec.image_url
+              image: rec.image_url,
+              ...(rec.key && { key: rec.key }),
             };
         })
         state.search.page = 1;
@@ -101,3 +107,37 @@ const init = function() {
 }
 
 init();
+
+export const uploadRecipe = async function(newRecipe){
+    try {
+        const ingredients = Object.entries(newRecipe).filter(entry => entry[0].startsWith('ingredient') && entry[1] !== '')
+            .map(ing => {
+                const ingArr = ing[1].split(',').map(el => el.trim());
+                if(ingArr.length !== 3) 
+                    throw new Error('Wrong ingredient format. Please add 3 parameters separeted by coma.')
+
+                const [quantity, unit, description] = ingArr;
+
+                return {quantity : quantity ? +quantity : null, unit, description};
+            });
+
+        const recipe = {
+            title: newRecipe.title,
+            image_url: newRecipe.image,
+            source_url: newRecipe.sourceUrl,
+            publisher: newRecipe.publisher,
+            cooking_time: +newRecipe.cookingTime,
+            servings: +newRecipe.servings,
+            ingredients
+        }
+
+        const data = await AJAX(`${API_URL}?key=${API_KEY}`, recipe);
+        
+        state.recipe = createRecipeObject(data);
+        
+    } catch(err) {
+        throw(err);
+    }
+
+
+}

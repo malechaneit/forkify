@@ -21,4 +21,4 @@ class SearchView extends View  {
     }
 }
 
-export const searchView = new SearchView();
+export default new SearchView();

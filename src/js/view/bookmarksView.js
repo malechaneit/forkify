@@ -16,4 +16,4 @@ class BookmarksView extends View {
   }
 }
 
-export const bookmarksView = new BookmarksView();
+export default new BookmarksView();

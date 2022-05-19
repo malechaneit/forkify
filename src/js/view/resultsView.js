@@ -13,4 +13,4 @@ class ResultsView extends View {
   }
 }
 
-export const resultsView = new ResultsView();
+export default new ResultsView();
