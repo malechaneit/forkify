@@ -2,6 +2,9 @@
 
 Recipes library based on <a href="https://forkify-api.herokuapp.com/">forkifyAPI</a>
 
+<img src="site-preview.png" alt="Screenshot of interface" width="800">
+
+
 Please see the flowchart for the list of features:
 
 <img src="forkify-flowchart-part-1.png" alt="Flowchart 1" widht="800">
